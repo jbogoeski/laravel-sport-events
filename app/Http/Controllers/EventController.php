@@ -79,7 +79,18 @@ class EventController extends Controller
         $event->description = $request->input('description');
         $user = $request->user();
         $event->event_id = $request->user()->id;
-        $event->event_image = $request->file('event_image')->store('');
+        // $event->event_image = $request->file('event_image')->store();
+        if ($request->file('event_image')) {
+            $imagePath = $request->file('event_image');
+            $imageName = $imagePath->getClientOriginalName();
+  
+            $event_image = $request->file('event_image')->storeAs('uploads', $imageName, 'public');
+          }
+  
+          $event->event_image = $imageName;
+          $event->event_image = ''.$event_image;
+
+
         $event->date_start = $request->input('date_start');
         $event->date_stop = $request->input('date_stop');
         $event->save();
