@@ -34,6 +34,9 @@ class EventController extends Controller
      */
     public function create()
     {
+        $this->authorize('create', Event::class);
+
+
         return view('event.create');
     }
 
@@ -45,31 +48,19 @@ class EventController extends Controller
      */
     public function store(Request $request)
     {
+        // $this->authorize('store', Event::class);
+
 
         
         $this->validate($request, [
             'name' => 'required',
             'description' => 'required',
             'event_image' => 'required|image',
-            // 'date_start' => 'date|required',
-            // 'date_stop' => 'date|required',
+            'date_start' => 'date|required',
+            'date_stop' => 'date|required',
         ]);
 
-        //Handle File Upload
-        // if($request->hasFile('event_image')){
-        //     // Get filename with the extension
-        //     $filenameWithExt = $request->file('event_image')->getClientOriginalName();
-        //     // Get just filename
-        //     $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
-        //     // Get just ext
-        //     $extension = $request->file('event_image')->getClientOriginalExtension();
-        //     // Filename to store
-        //     $fileNameToStore= $filename.'_'.time().'.'.$extension;
-        //     // Upload Image
-        //     $path = $request->file('event_image')->storeAs('', $fileNameToStore);
-        // } else {
-        //     $fileNameToStore = 'noimage.jpg';
-        // }
+     
 
 
 
@@ -92,6 +83,7 @@ class EventController extends Controller
 
 
         $event->date_start = $request->input('date_start');
+
         $event->date_stop = $request->input('date_stop');
         $event->save();
 
@@ -99,21 +91,7 @@ class EventController extends Controller
     
     
     
-        // $inputs = request()->validate([
-        //     'name' => 'required',
-        //     'description' => 'required',
-        //     'event_image' => 'required|image',
-        //     'date_start' => 'date|required',
-        //     'date_stop' => 'date|required',
-        // ]);
-     
-        // // $path = $request->file('event_image')->store('public/image');
-
-        // $user  = $request->user();
-
-        // $event = $user->events()->create($inputs);
-
-        // // $event = Event::create($request->all());
+      
 
 
         return redirect(route('events.index', ['events' => $event->id]))->withSuccess('The event has been successfully created');
@@ -147,7 +125,7 @@ class EventController extends Controller
         // $event = User::find('id');
         // dd('here');
 
-        $this->authorize('edit', $event);
+        // $this->authorize('edit', $event);
 
 
 
@@ -165,26 +143,69 @@ class EventController extends Controller
      */
     public function update(Request $request, Event $event)
     {
+        $this->authorize('update', $event);
 
 
-        $request->validate([
-            'name' => 'required',
-            'description' => 'required',
-            'date_start' => 'date|required',
-            'date_stop' => 'date|required',
-
-        ]);
+      
 
         // $event = Event::find($id);
         $this->authorize($event);
+        $event->update($request->all());
 
 
-            $event->update($request->all());
+        if($file = $request->file('event_image')) {
 
-            // dd($event);
+        $filename =  $file->getClientOriginalName().'.' . $file->getClientOriginalExtension();
+        
+        $file->move(public_path('uploads/'), $filename);
+
+        }   
+
+
+
+
+
+
+
+
+
+
+        // $request->validate([
+        //     'name' => 'required',
+        //     'description' => 'required',
+        //     'date_start' => 'date|required',
+        //     'date_stop' => 'date|required',
+
+        // ]);
+
+        // $this->authorize($event);
+        // if ($request->hasFile('event_image')) {
+        //     $imagePath = $request->file('event_image');
+        //     $imageName = $imagePath->getClientOriginalName();
+  
+        //     $event_image = $request->file('event_image')->storeAs('uploads', $imageName, 'public');
+           
+        //   }
+  
+        //   $event->event_image = $imageName;
+        //     $event->event_image = ''.$event_image;
+
+
+        //     $event->update($request->all());
+
+
+        // $event = Event::find($event);
+        // $event = $request->all();
+        // $user = $request->user();
+
+
+        // // $event->update();
+
+
+        // // //   dd($event);
+        // $user->events()->first()->update($event);
+     
             return redirect(route('events.index', ['event' => $event]))->withSuccess('Updated');
-
-
 
     }
 

@@ -32,18 +32,17 @@
             <tr>
                 <td>{{$event->id}}</td>
                 <td>{{$event->name}}</td>
-                <td>{{$event->date_start}}</td>
-                <td>{{$event->date_stop}}</td>
+                <td>{{Carbon\Carbon::parse($event->date_start)->format('d M Y')}}</td>
+                <td>{{Carbon\Carbon::parse($event->date_stop)->format('d M Y')}}</td>
                 <td>
                     <form class="d-inline" action="{{route('events.destroy', $event->id)}}" method="POST">
 
                     <a class="btn btn-link-dark btn-primary" href="{{route('events.show', $event->id)}}">Show</a>
                    
-
-
                     @if(auth()->check() && Auth::user()->can('update', $event))
 
 
+                 
             
                     <a class="btn btn-link-dark btn-warning" href="{{route('events.edit', $event->id)}}">Edit</a>
                 
